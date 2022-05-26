@@ -1,0 +1,340 @@
+#ifndef BST_BST_H
+#define BST_BST_H
+
+#include <utility>
+#include <cstddef>
+
+#include <iostream>
+
+//! Дерево бинарного поиска
+template <typename KeyType, typename ValueType>
+class BST
+{
+public:
+    //! Конструктор по умолчанию
+    BST() = default;
+    //! Копирование
+    explicit BST(const BST& other);
+    BST& operator=(const BST other);
+    //! Перемещение
+    explicit BST(BST&& other) noexcept;
+    BST& operator=(BST&& other) noexcept;
+
+    //! Деструктор
+//    ~BST();
+
+    //! Узел дерева бинароного поиска
+    struct Node
+    {
+        KeyType key;        //!< ключ
+        ValueType value;    //!< значение
+        Node* left;         //!< указатель на элемент левого поддерева
+        Node* right;        //!< указатель на элемент правого поддерева
+        Node* parent;	    //!< указатель на родителя
+    };
+    //! Итератор бинарного дерева поиска
+    class Iterator
+    {
+    public:
+        explicit Iterator(Node* ptr);
+        //! Разыменование
+        std::pair<KeyType, ValueType>& operator*();
+        const std::pair<KeyType, ValueType>& operator*() const;
+        //!
+        Node* operator->();
+        const Node* operator->() const;
+        //! Оперотор ++
+        Iterator operator++();
+        Iterator operator++(int);
+        //! Оператор сравнения
+        bool operator==(const Iterator& other) const;
+        bool operator!=(const Iterator& other) const;
+
+    private:
+        Node* _ptr;
+    };
+    //! \brief Вставить элемент
+    //! \details
+    //! Алгоритм:
+    //! Если дерево пусто, заменить его на дерево с одним корневым узлом ((K, V), null, null) и остановиться
+    //! Иначе сравнить K со значением ключа корневого узла R:
+    //! Если K > R, рекурсивно добавить (K, V) в правое поддерево ;
+    //! Если K < R, рекурсивно добавить (K, V) в левое поддерево;
+    //! Если K = R, заменить V текущего узла новым значением;
+    //! \param key - ключ элемента
+    //! \param value - значение
+    void insert(KeyType key, ValueType value);
+    //! \brief Удалить элемент
+    //! \details
+    //! Алгоритм:
+    //! Если дерево T пусто, остановиться
+    //! Иначе сравнить K с ключом X корневого узла R
+    //! Если K > X, рекурсивно удалить K из правого поддерева;
+    //! Если K < X, рекурсивно удалить K из левого поддерева;
+    //! Если K = X, то необходимо рассмотреть три случая:
+    //! 1. Если обоих детей нет, то удаляем текущий узел и обнуляем ссылку на него у родительского узла
+    //! 2. Если одного из детей нет, то значения полей ребёнка m ставим вместо соответствующих значений корневого узла, затирая его старые значения, и освобождаем память, занимаемую узлом m
+    //! 3. Если оба ребёнка присутствуют, то
+    //! Если левый узел m правого поддерева отсутствует (n->right->left)
+    //!     Копируем из правого узла в удаляемый поля K, V и ссылку на правый узел правого потомка;
+    //! Иначе
+    //!     Возьмём самый левый узел m, правого поддерева n->right;
+    //!     Скопируем данные (кроме ссылок на дочерние элементы) из m в n;
+    //!     Рекурсивно удалим узел m;
+    //! \param key - ключ элемента
+    void remove(KeyType key);
+    //! \brief Найти элемент в дереве
+    //! \details
+    //! Алгоритм:
+    //! Если дерево пусто, сообщить, что узел не найден, и остановиться;
+    //! Иначе сравнить K со значением ключа корневого узла R:
+    //! Если K = R, выдать ссылку на этот узел и остановиться;
+    //! Если K > R, рекурсивно искать ключ K в правом поддереве Т;
+    //! Если K < R, рекурсивно искать ключ K в левом поддереве Т;
+    //! \param key - ключ элемента
+    //! \return указатель на искомый узел, nullptr - если такого узла нет
+    Node* find(KeyType key) const;
+    //! \brief Найти узел с минимальным значением ключа в поддереве
+    //! \param key - ключ корневого узла поддерева
+    //! \return указатель на искомый узел
+    Node* min(KeyType key) const;
+    //! \brief Найти узел с максимальным значением ключа в дереве
+    //! \param key - ключ корневого узла поддерева
+    //! \return указатель на искомый узел, nullptr - если такого узла нет
+    Node* max(KeyType key) const;
+    //! \brief Получить корень дерева
+    //! \return Итератор на корень дерева
+    Iterator root();
+    //! \brief Получить крайний левый лист дерева
+    //! \return Итератор
+    Iterator begin();
+    //! \brief Получить крайний правый лист дерева
+    //! \return Итератор
+    Iterator end();
+    //! \brief Получить размер дерева
+    //! \return размер дерева
+    size_t size() const;
+//private:
+    Node* insert(KeyType key, ValueType value, Node* node);
+
+    Node* find(KeyType key, Node* node) const;
+
+    void remove(KeyType key, Node* node);
+
+    Node* min(Node* node) const;
+    Node* max(Node* node) const;
+
+    size_t _size = 0;
+    Node* _root = nullptr; //!< корневой узел дерева
+};
+
+//! \brief Вставить элемент
+//! \details
+//! Алгоритм:
+//! Если дерево пусто, заменить его на дерево с одним корневым узлом ((K, V), null, null) и остановиться
+//! Иначе сравнить K со значением ключа корневого узла R:
+//! Если K > R, рекурсивно добавить (K, V) в правое поддерево ;
+//! Если K < R, рекурсивно добавить (K, V) в левое поддерево;
+//! Если K = R, заменить V текущего узла новым значением;
+//! \param key - ключ элемента
+//! \param value - значение
+template<typename KeyType, typename ValueType>
+void BST<KeyType, ValueType>::insert(KeyType key, ValueType value) {
+    _root = insert(key, value, _root);
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::insert(KeyType key, ValueType value, BST::Node *node)
+    {
+        if (node == nullptr)
+        {
+            node = new Node();
+            *node = {key, value, nullptr, nullptr};
+            if (_size == 0)
+            {
+                node->parent = nullptr;
+            }
+            ++_size;
+        }
+        else if (key < node->key)
+        {
+            node->left = insert(key, value, node->left);
+            node->left->parent = node;
+        }
+        else if (key > node->key)
+        {
+            node->right = insert(key, value, node->right);
+            node->right->parent = node;
+
+        }
+        else if (key == node->key)
+        {
+            node->value = value;
+        }
+        return node;
+    }
+
+//! \brief Найти элемент в дереве
+//! \details
+//! Алгоритм:
+//! Если дерево пусто, сообщить, что узел не найден, и остановиться;
+//! Иначе сравнить K со значением ключа корневого узла R:
+//! Если K = R, выдать ссылку на этот узел и остановиться;
+//! Если K > R, рекурсивно искать ключ K в правом поддереве Т;
+//! Если K < R, рекурсивно искать ключ K в левом поддереве Т;
+//! \param key - ключ элемента
+//! \return указатель на искомый узел, nullptr - если такого узла нет
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::find(KeyType key) const
+{
+    return find(key, _root);
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::find(KeyType key, BST::Node *node) const
+{
+    if (node == nullptr)
+    {
+        return nullptr;
+    }
+    else if (key == node->key)
+    {
+        return node;
+    }
+    else if (key < node->key)
+    {
+        return find(key, node->left);
+    }
+    else if (key > node->key)
+    {
+        return find(key, node->right);
+    }
+}
+
+//! \brief Удалить элемент
+//! \details
+//! Алгоритм:
+//! Если дерево T пусто, остановиться
+//! Иначе сравнить K с ключом X корневого узла R
+//! Если K > X, рекурсивно удалить K из правого поддерева;
+//! Если K < X, рекурсивно удалить K из левого поддерева;
+//! Если K = X, то необходимо рассмотреть три случая:
+//! 1. Если обоих детей нет, то удаляем текущий узел и обнуляем ссылку на него у родительского узла
+//! 2. Если одного из детей нет, то значения полей ребёнка m ставим вместо соответствующих значений корневого узла, затирая его старые значения, и освобождаем память, занимаемую узлом m
+//! 3. Если оба ребёнка присутствуют, то
+//! Если левый узел m правого поддерева отсутствует (n->right->left)
+//!     Копируем из правого узла в удаляемый поля K, V и ссылку на правый узел правого потомка;
+//! Иначе
+//!     Возьмём самый левый узел m, правого поддерева n->right;
+//!     Скопируем данные (кроме ссылок на дочерние элементы) из m в n;
+//!     Рекурсивно удалим узел m;
+//! \param key - ключ элемента
+template<typename KeyType, typename ValueType>
+void BST<KeyType, ValueType>::remove(KeyType key)
+{
+    remove(key, _root);
+}
+
+template<typename KeyType, typename ValueType>
+void BST<KeyType, ValueType>::remove(KeyType key, BST::Node *node) {
+    if (node == nullptr)
+    {
+        return;
+    }
+    else if (key < node->key)
+    {
+        remove(key, node->left);
+    }
+    else if (key > node->key)
+    {
+        remove(key, node->right);
+    }
+    else if (key == node->key)
+    {
+        if (node->left == nullptr && node->right == nullptr)
+        {
+            if (node->parent->key > node->key)
+            {
+                node->parent->left = nullptr;
+            }
+            else
+            {
+                node->parent->right = nullptr;
+            }
+            delete node;
+            --_size;
+        }
+        else if (node->left != nullptr && node->right == nullptr)
+        {
+            *node = {node->left->key, node->left->value, node->left->left, node->left->right};
+            delete node->left;
+            --_size;
+        }
+        else if (node->left == nullptr && node->right != nullptr)
+        {
+            *node = {node->right->key, node->right->value, node->right->left, node->right->right};
+            delete node->right;
+            --_size;
+        }
+        else
+        {
+            Node* minNode = min(node->right);
+            *node = {minNode->key, minNode->value, minNode->left, minNode->right};
+            delete minNode;
+            --_size;
+        }
+    }
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(BST::Node *node) const
+{
+    if (node == nullptr)
+    {
+        return nullptr;
+    }
+    else if (node->left == nullptr)
+    {
+        return node;
+    }
+    else
+    {
+        return min(node->left);
+    }
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(KeyType key) const
+{
+    return min(find(key));
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::max(BST::Node *node) const
+{
+    if (node == nullptr)
+    {
+        return nullptr;
+    }
+    else if (node->right == nullptr)
+    {
+        return node;
+    }
+    else
+    {
+        return max(node->right);
+    }
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::max(KeyType key) const
+{
+    return max(find(key));
+}
+
+template<typename KeyType, typename ValueType>
+size_t BST<KeyType, ValueType>::size() const {
+    return _size;
+}
+
+#endif //BST_BST_H
