@@ -44,14 +44,38 @@ public:
         Node* operator->();
         const Node* operator->() const;
         //! Оперотор ++
-        Iterator operator++();
-        Iterator operator++(int);
+        Iterator operator++()
+        {
+            if (_ptr->right)
+            {
+//                _ptr = BST::min(_ptr->right);
+            }
+            else
+            {
+                _ptr = _ptr->parent;
+            }
+            return *this;
+        }
+        Iterator operator++(int)
+        {
+            Node* bufPtr = _ptr;
+            if (_ptr->right)
+            {
+                _ptr = this->min(_ptr->right);
+            }
+            else
+            {
+                _ptr = _ptr->parent;
+            }
+            return Iterator(bufPtr);
+        }
         //! Оператор сравнения
         bool operator==(const Iterator& other) const;
         bool operator!=(const Iterator& other) const;
 
     private:
         Node* _ptr;
+        std::pair<KeyType, ValueType> _pr; // ????
     };
     //! \brief Вставить элемент
     //! \details
@@ -114,6 +138,7 @@ public:
     //! \brief Получить размер дерева
     //! \return размер дерева
     size_t size() const;
+
 //private:
     Node* insert(KeyType key, ValueType value, Node* node);
 
@@ -125,9 +150,10 @@ public:
     Node* max(Node* node) const;
 
     Node* copy(Node* node);
-    Node* moveCopy(Node* node);
 
     void clear(Node* node);
+
+    void toValid(BST::Node *node);
 
     size_t _size = 0;
     Node* _root = nullptr; //!< корневой узел дерева
@@ -210,7 +236,8 @@ typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::find(KeyType ke
     {
         return find(key, node->left);
     }
-    else if (key > node->key)
+//    else if (key > node->key)
+    else
     {
         return find(key, node->right);
     }
@@ -405,37 +432,8 @@ BST<KeyType, ValueType>::BST(const BST& other)
 template<typename KeyType, typename ValueType>
 BST<KeyType, ValueType>& BST<KeyType, ValueType>::operator=(BST&& other) noexcept
 {
-    _root = moveCopy(other._root);
-    _size = std::move(other._size);
-    other._size = 0;
-}
-
-template<typename KeyType, typename ValueType>
-typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::moveCopy(BST::Node *node)
-{
-    if (node)
-    {
-        Node* nNode = new Node();
-        std::swap(*nNode, node->key);
-        std::swap(*nNode, node->value);
-        node->key = KeyType();
-        node->value = ValueType();
-
-        nNode->left = copy(node->left);
-        if (node->left)
-        {
-            nNode->left->parent = node;
-        }
-
-        nNode->right = copy(node->right);
-        if (node->right)
-        {
-            nNode->right->parent = node;
-        }
-
-        return nNode;
-    }
-    return nullptr;
+    std::swap(_root, other._root);
+    toValid(other._root);
 }
 
 template<typename KeyType, typename ValueType>
@@ -445,5 +443,82 @@ BST<KeyType, ValueType>::BST(BST&& other) noexcept {
 
 template<typename KeyType, typename ValueType>
 BST<KeyType, ValueType>::Iterator::Iterator(BST::Node *ptr) : _ptr(ptr) { }
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::Iterator::operator->()
+{
+    return _ptr;
+}
+
+template<typename KeyType, typename ValueType>
+const typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::Iterator::operator->() const
+{
+    return _ptr;
+}
+
+template<typename KeyType, typename ValueType>
+std::pair<KeyType, ValueType>& BST<KeyType, ValueType>::Iterator::operator*()
+{
+    _pr = std::make_pair(_ptr->key, _ptr->value);
+    return _pr;
+}
+
+template<typename KeyType, typename ValueType>
+const std::pair<KeyType, ValueType> &BST<KeyType, ValueType>::Iterator::operator*() const {
+    _pr = std::make_pair(_ptr->key, _ptr->value);
+    return _pr;
+}
+
+template<typename KeyType, typename ValueType>
+bool BST<KeyType, ValueType>::Iterator::operator==(const BST::Iterator &other) const {
+    return _ptr == other._ptr;
+}
+
+template<typename KeyType, typename ValueType>
+bool BST<KeyType, ValueType>::Iterator::operator!=(const BST::Iterator &other) const {
+    return _ptr != other._ptr;
+}
+
+//template<typename KeyType, typename ValueType>
+//typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::Iterator::operator++()
+//{
+//    if (_ptr->right)
+//    {
+//        _ptr = _ptr->right;
+//    }
+//    else
+//    {
+//        _ptr = _ptr->parent;
+//    }
+//    return *this;
+//}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::root()
+{
+    return BST::Iterator(_root);
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::begin()
+{
+    return BST::Iterator(min(_root));
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::end()
+{
+    return BST::Iterator(max(_root));
+}
+
+template<typename KeyType, typename ValueType>
+void BST<KeyType, ValueType>::toValid(BST::Node *node) {
+    if (node) {
+        toValid(node->left);
+        toValid(node->right);
+        node->key = 0;
+        node->value = 0;
+    }
+}
 
 #endif //BST_BST_H
