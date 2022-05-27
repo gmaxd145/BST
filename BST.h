@@ -14,14 +14,14 @@ public:
     //! Конструктор по умолчанию
     BST() = default;
     //! Копирование
-    explicit BST(const BST& other);
-    BST& operator=(const BST other);
+    BST(const BST& other);
+    BST& operator=(const BST& other);
     //! Перемещение
-    explicit BST(BST&& other) noexcept;
+    BST(BST&& other) noexcept;
     BST& operator=(BST&& other) noexcept;
 
     //! Деструктор
-//    ~BST();
+    ~BST();
 
     //! Узел дерева бинароного поиска
     struct Node
@@ -124,6 +124,11 @@ public:
     Node* min(Node* node) const;
     Node* max(Node* node) const;
 
+    Node* copy(Node* node);
+    Node* moveCopy(Node* node);
+
+    void clear(Node* node);
+
     size_t _size = 0;
     Node* _root = nullptr; //!< корневой узел дерева
 };
@@ -145,34 +150,34 @@ void BST<KeyType, ValueType>::insert(KeyType key, ValueType value) {
 
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::insert(KeyType key, ValueType value, BST::Node *node)
+{
+    if (!node)
     {
-        if (node == nullptr)
+        node = new Node();
+        *node = {key, value, nullptr, nullptr};
+        if (_size == 0)
         {
-            node = new Node();
-            *node = {key, value, nullptr, nullptr};
-            if (_size == 0)
-            {
-                node->parent = nullptr;
-            }
-            ++_size;
+            node->parent = nullptr;
         }
-        else if (key < node->key)
-        {
-            node->left = insert(key, value, node->left);
-            node->left->parent = node;
-        }
-        else if (key > node->key)
-        {
-            node->right = insert(key, value, node->right);
-            node->right->parent = node;
-
-        }
-        else if (key == node->key)
-        {
-            node->value = value;
-        }
-        return node;
+        ++_size;
     }
+    else if (key < node->key)
+    {
+        node->left = insert(key, value, node->left);
+        node->left->parent = node;
+    }
+    else if (key > node->key)
+    {
+        node->right = insert(key, value, node->right);
+        node->right->parent = node;
+
+    }
+    else if (key == node->key)
+    {
+        node->value = value;
+    }
+    return node;
+}
 
 //! \brief Найти элемент в дереве
 //! \details
@@ -193,7 +198,7 @@ typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::find(KeyType ke
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::find(KeyType key, BST::Node *node) const
 {
-    if (node == nullptr)
+    if (!node)
     {
         return nullptr;
     }
@@ -237,7 +242,7 @@ void BST<KeyType, ValueType>::remove(KeyType key)
 
 template<typename KeyType, typename ValueType>
 void BST<KeyType, ValueType>::remove(KeyType key, BST::Node *node) {
-    if (node == nullptr)
+    if (!node)
     {
         return;
     }
@@ -264,13 +269,13 @@ void BST<KeyType, ValueType>::remove(KeyType key, BST::Node *node) {
             delete node;
             --_size;
         }
-        else if (node->left != nullptr && node->right == nullptr)
+        else if (node->left && !node->right)
         {
             *node = {node->left->key, node->left->value, node->left->left, node->left->right};
             delete node->left;
             --_size;
         }
-        else if (node->left == nullptr && node->right != nullptr)
+        else if (!node->left && node->right)
         {
             *node = {node->right->key, node->right->value, node->right->left, node->right->right};
             delete node->right;
@@ -289,11 +294,11 @@ void BST<KeyType, ValueType>::remove(KeyType key, BST::Node *node) {
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(BST::Node *node) const
 {
-    if (node == nullptr)
+    if (!node)
     {
         return nullptr;
     }
-    else if (node->left == nullptr)
+    else if (!node->left)
     {
         return node;
     }
@@ -312,11 +317,11 @@ typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(KeyType key
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::max(BST::Node *node) const
 {
-    if (node == nullptr)
+    if (!node)
     {
         return nullptr;
     }
-    else if (node->right == nullptr)
+    else if (!node->right)
     {
         return node;
     }
@@ -336,5 +341,109 @@ template<typename KeyType, typename ValueType>
 size_t BST<KeyType, ValueType>::size() const {
     return _size;
 }
+
+template<typename KeyType, typename ValueType>
+BST<KeyType, ValueType>::~BST() {
+    clear(_root);
+    _root = nullptr;
+    _size = 0;
+}
+
+template<typename KeyType, typename ValueType>
+void BST<KeyType, ValueType>::clear(BST::Node *node)
+{
+    if (node)
+    {
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+}
+
+template<typename KeyType, typename ValueType>
+BST<KeyType, ValueType>&  BST<KeyType, ValueType>::operator=(const BST& other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+    _root = copy(other._root);
+    _size = other._size;
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::copy(BST::Node *node)
+{
+    if (node)
+    {
+        Node* nNode = new Node();
+        *nNode = {node->key, node->value};
+
+        nNode->left = copy(node->left);
+        if (node->left)
+        {
+            nNode->left->parent = node;
+        }
+
+        nNode->right = copy(node->right);
+        if (node->right)
+        {
+            nNode->right->parent = node;
+        }
+
+        return nNode;
+    }
+    return nullptr;
+}
+
+template<typename KeyType, typename ValueType>
+BST<KeyType, ValueType>::BST(const BST& other)
+{
+    *this = other;
+}
+
+template<typename KeyType, typename ValueType>
+BST<KeyType, ValueType>& BST<KeyType, ValueType>::operator=(BST&& other) noexcept
+{
+    _root = moveCopy(other._root);
+    _size = std::move(other._size);
+    other._size = 0;
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::moveCopy(BST::Node *node)
+{
+    if (node)
+    {
+        Node* nNode = new Node();
+        std::swap(*nNode, node->key);
+        std::swap(*nNode, node->value);
+        node->key = KeyType();
+        node->value = ValueType();
+
+        nNode->left = copy(node->left);
+        if (node->left)
+        {
+            nNode->left->parent = node;
+        }
+
+        nNode->right = copy(node->right);
+        if (node->right)
+        {
+            nNode->right->parent = node;
+        }
+
+        return nNode;
+    }
+    return nullptr;
+}
+
+template<typename KeyType, typename ValueType>
+BST<KeyType, ValueType>::BST(BST&& other) noexcept {
+    *this = std::move(other);
+}
+
+template<typename KeyType, typename ValueType>
+BST<KeyType, ValueType>::Iterator::Iterator(BST::Node *ptr) : _ptr(ptr) { }
 
 #endif //BST_BST_H
