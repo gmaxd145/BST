@@ -114,7 +114,7 @@ public:
         //! \return размер дерева
     size_t size() const;
 
-//private:
+private:
     Node* insert(KeyType key, ValueType value, Node* node);
 
     Node* find(KeyType key, Node* node) const;
