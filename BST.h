@@ -44,31 +44,8 @@ public:
         Node* operator->();
         const Node* operator->() const;
         //! Оперотор ++
-        Iterator operator++()
-        {
-            if (_ptr->right)
-            {
-//                _ptr = BST::min(_ptr->right);
-            }
-            else
-            {
-                _ptr = _ptr->parent;
-            }
-            return *this;
-        }
-        Iterator operator++(int)
-        {
-            Node* bufPtr = _ptr;
-            if (_ptr->right)
-            {
-                _ptr = this->min(_ptr->right);
-            }
-            else
-            {
-                _ptr = _ptr->parent;
-            }
-            return Iterator(bufPtr);
-        }
+        Iterator operator++();
+        Iterator operator++(int);
         //! Оператор сравнения
         bool operator==(const Iterator& other) const;
         bool operator!=(const Iterator& other) const;
@@ -146,8 +123,8 @@ public:
 
     void remove(KeyType key, Node* node);
 
-    Node* min(Node* node) const;
-    Node* max(Node* node) const;
+    static Node* min(Node* node);
+    static Node* max(Node* node);
 
     Node* copy(Node* node);
 
@@ -319,7 +296,7 @@ void BST<KeyType, ValueType>::remove(KeyType key, BST::Node *node) {
 }
 
 template<typename KeyType, typename ValueType>
-typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(BST::Node *node) const
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(BST::Node *node)
 {
     if (!node)
     {
@@ -342,7 +319,7 @@ typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::min(KeyType key
 }
 
 template<typename KeyType, typename ValueType>
-typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::max(BST::Node *node) const
+typename BST<KeyType, ValueType>::Node* BST<KeyType, ValueType>::max(BST::Node *node)
 {
     if (!node)
     {
@@ -479,19 +456,37 @@ bool BST<KeyType, ValueType>::Iterator::operator!=(const BST::Iterator &other) c
     return _ptr != other._ptr;
 }
 
-//template<typename KeyType, typename ValueType>
-//typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::Iterator::operator++()
-//{
-//    if (_ptr->right)
-//    {
-//        _ptr = _ptr->right;
-//    }
-//    else
-//    {
-//        _ptr = _ptr->parent;
-//    }
-//    return *this;
-//}
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::Iterator::operator++()
+{
+    if (_ptr == nullptr)
+    {
+        return * this;
+    }
+    if (_ptr->right)
+    {
+        _ptr = BST::min(_ptr->right);
+    }
+    else
+    {
+        auto parent = _ptr->parent;
+        while (parent && _ptr == parent->right)
+        {
+            _ptr = parent;
+            parent = parent->parent;
+        }
+        _ptr = parent;
+    }
+    return *this;
+}
+
+template<typename KeyType, typename ValueType>
+typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::Iterator::operator++(int)
+{
+    Node* bufPtr = _ptr;
+    ++(*this);
+    return Iterator(bufPtr);
+}
 
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::root()
@@ -513,7 +508,8 @@ typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::end()
 
 template<typename KeyType, typename ValueType>
 void BST<KeyType, ValueType>::toValid(BST::Node *node) {
-    if (node) {
+    if (node)
+    {
         toValid(node->left);
         toValid(node->right);
         node->key = 0;
