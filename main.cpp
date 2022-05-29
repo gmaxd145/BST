@@ -16,20 +16,10 @@ int main() {
 
 //    error
 //    BST<int, char> bst2 = std::move(bst);
-    std::cout << bst.find(12)->key << std::endl;
-    BST<int, char>::Iterator it(bst.find(12));
-    it++;
-    std::cout << std::get<0>(*it) << std::endl;
-    ++it;
-    std::cout << std::get<0>(*it) << std::endl;
-    ++it;
-    std::cout << std::get<0>(*it) << std::endl;
-    ++it;
-    std::cout << std::get<0>(*it) << std::endl;
-    ++it;
-    std::cout << std::get<0>(*it) << std::endl;
-    ++it;
-    std::cout << std::get<0>(*it) << std::endl;
+    for (auto it = bst.begin(); it != bst.end();  ++it)
+    {
+        std::cout << it->key << " ";
+    }
 
 
 //    std::cout << std::get<0>(*bst.begin()++) << std::endl;

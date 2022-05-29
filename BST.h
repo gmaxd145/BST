@@ -111,7 +111,7 @@ public:
     //! \return Итератор
     Iterator end();
     //! \brief Получить размер дерева
-    //! \return размер дерева
+        //! \return размер дерева
     size_t size() const;
 
 //private:
@@ -463,7 +463,7 @@ typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::begin()
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::end()
 {
-    return BST::Iterator(max(_root));
+    return BST::Iterator(max(_root)->right);
 }
 
 template<typename KeyType, typename ValueType>
