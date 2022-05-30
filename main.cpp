@@ -10,6 +10,7 @@ int main() {
 //    bst.insert(4, 'j');
 //    bst.insert(1, 'p');
 //    bst.insert(5, 'l');
+//    test
 
     for (auto it = bst.begin(); it != bst.end();  ++it)
     {
