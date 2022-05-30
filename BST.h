@@ -463,6 +463,10 @@ typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::begin()
 template<typename KeyType, typename ValueType>
 typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::end()
 {
+    if (!_root)
+    {
+        return BST::Iterator(max(_root));
+    }
     return BST::Iterator(max(_root)->right);
 }
 
