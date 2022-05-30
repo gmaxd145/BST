@@ -421,7 +421,7 @@ typename BST<KeyType, ValueType>::Iterator BST<KeyType, ValueType>::Iterator::op
 {
     if (_ptr == nullptr)
     {
-        return * this;
+        return *this;
     }
     if (_ptr->right)
     {
