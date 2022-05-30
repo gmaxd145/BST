@@ -3,29 +3,28 @@
 
 int main() {
     BinarySearchTree<int, char> bst;
-    bst.insert(4, 'g');
-    bst.insert(2, 's');
-    bst.insert(5, 'f');
-    bst.insert(1, 'd');
-    bst.insert(3, 'j');
-    bst.insert(4, 'l');
+//    bst.insert(6, 'g');
+//    bst.insert(7, 's');
+//    bst.insert(3, 'f');
+//    bst.insert(2, 'd');
+//    bst.insert(4, 'j');
+//    bst.insert(1, 'p');
+//    bst.insert(5, 'l');
 
-//    bst.remove(15);
-    std::cout << std::get<1>(bst._root->left->right->right->keyValuePair) << std::endl;
+    for (auto it = bst.begin(); it != bst.end();  ++it)
+    {
+        std::cout << it->first << it->second << " ";
+    }
 
-//    error
-//    BST<int, char> bst2 = std::move(bst);
-//    for (auto it = bst.begin(); it != bst.end();  ++it)
-//    {
-//        std::cout << it->key << " ";
-//    }
+    std::cout << std::endl;
 
-
-//    std::cout << std::get<0>(*bst.begin()++) << std::endl;
-//    std::cout << std::get<0>(*bst.begin()) << std::endl;
-
-//    it++;
-
+//    auto it = BinarySearchTree<int, char>::Iterator(bst._root->left->right->right);
+//    --it;
+//    std::cout << it->first << it->second << " ";
+//    --it;
+//    std::cout << it->first << it->second << " ";
+//    --it;
+//    std::cout << it->first << it->second << " ";
 
 
     return 0;

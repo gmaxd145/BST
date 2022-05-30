@@ -126,17 +126,108 @@ public:
 //private:
     Node* insert(Key key, Value value, Node *node);
 
+    Node* find(Key key, Node* node) const;
+
+    static Node* min(Node *node);
+    static Node* max(Node *node);
+
     std::size_t _size = 0;
     Node* _root = nullptr; //!< корневой узел дерева
 };
+
+template<typename Key, typename Value>
+BinarySearchTree<Key, Value>::ConstIterator::ConstIterator(const BinarySearchTree::Node *node)
+: _node(node)
+{
+}
+
+template<typename Key, typename Value>
+BinarySearchTree<Key, Value>::Iterator::Iterator(BinarySearchTree::Node *node)
+: _node(node)
+{
+}
+
+template<typename Key, typename Value>
+std::pair<Key, Value>* BinarySearchTree<Key, Value>::Iterator::operator->()
+{
+    return &_node->keyValuePair;
+}
+
+template<typename Key, typename Value>
+const std::pair<Key, Value> *BinarySearchTree<Key, Value>::Iterator::operator->() const
+{
+    return &_node->keyValuePair;
+}
+
+template<typename Key, typename Value>
+bool BinarySearchTree<Key, Value>::Iterator::operator==(const BinarySearchTree::Iterator &other) const
+{
+    return _node == other._node;
+}
+
+template<typename Key, typename Value>
+bool BinarySearchTree<Key, Value>::Iterator::operator!=(const BinarySearchTree::Iterator &other) const
+{
+    return _node != other._node;
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Iterator BinarySearchTree<Key, Value>::Iterator::operator++()
+{
+    if (_node == nullptr)
+    {
+        return *this;
+    }
+    if (_node->right)
+    {
+        _node = BinarySearchTree::min(_node->right);
+    }
+    else
+    {
+        auto parent = _node->parent;
+        while (parent && _node == parent->right)
+        {
+            _node = parent;
+            parent = parent->parent;
+        }
+        _node = parent;
+    }
+    return *this;
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Iterator BinarySearchTree<Key, Value>::Iterator::operator++(int)
+{
+    Node* bufPtr = _node;
+    ++(*this);
+    return Iterator(bufPtr);
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Iterator BinarySearchTree<Key, Value>::Iterator::operator--()
+{
+    if (_node == nullptr)
+    {
+        return *this;
+    }
+    if (_node->parent && _node->parent->keyValuePair.first <= _node->keyValuePair.first)
+    {
+        _node = _node->parent;
+    }
+    else
+    {
+        _node = BinarySearchTree::max(_node->left);
+    }
+    return *this;
+}
 
 
 template<typename Key, typename Value>
 BinarySearchTree<Key, Value>::Node::Node(Key key, Value value, BinarySearchTree::Node *parent,
                                          BinarySearchTree::Node *left, BinarySearchTree::Node *right)
 {
-    std::get<0>(keyValuePair) = key;
-    std::get<1>(keyValuePair) = value;
+    keyValuePair.first = key;
+    keyValuePair.second = value;
 }
 
 template<typename Key, typename Value>
@@ -149,8 +240,8 @@ template<typename Key, typename Value>
 typename BinarySearchTree<Key, Value>::Node*
 BinarySearchTree<Key, Value>::insert(Key key, Value value, BinarySearchTree::Node *node)
 {
-    auto& nodeKey = std::get<0>(node->keyValuePair);
-    auto& nodeValue = std::get<1>(node->keyValuePair);
+    auto& nodeKey = node->keyValuePair.first;
+    auto& nodeValue = node->keyValuePair.second;
 
     if (!node)
     {
@@ -178,6 +269,83 @@ BinarySearchTree<Key, Value>::insert(Key key, Value value, BinarySearchTree::Nod
         nodeValue = value;
     }
     return node;
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Iterator
+BinarySearchTree<Key, Value>::find(const Key &key)
+{
+    return Iterator(find(key, _root));
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Node* BinarySearchTree<Key, Value>::find(Key key, BinarySearchTree::Node *node) const
+{
+    auto& nodeKey = node->keyValuePair.first;
+    auto& nodeValue = node->keyValuePair.second;
+
+    if (!node)
+    {
+        return nullptr;
+    }
+    else if (key == nodeKey)
+    {
+        return node;
+    }
+    else if (key < nodeKey)
+    {
+        return find(key, node->left);
+    }
+    else
+    {
+        return find(key, node->right);
+    }
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Node* BinarySearchTree<Key, Value>::min(BinarySearchTree::Node *node)
+{
+    if (!node)
+    {
+        return nullptr;
+    }
+    else if (!node->left)
+    {
+        return node;
+    }
+    else
+    {
+        return min(node->left);
+    }
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Node* BinarySearchTree<Key, Value>::max(BinarySearchTree::Node *node)
+{
+    if (!node)
+    {
+        return nullptr;
+    }
+    else if (!node->right)
+    {
+        return node;
+    }
+    else
+    {
+        return max(node->right);
+    }
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Iterator BinarySearchTree<Key, Value>::begin()
+{
+    return BinarySearchTree::Iterator(min(_root));
+}
+
+template<typename Key, typename Value>
+typename BinarySearchTree<Key, Value>::Iterator BinarySearchTree<Key, Value>::end()
+{
+    return BinarySearchTree::Iterator(max(_root)->right);
 }
 
 
