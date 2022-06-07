@@ -122,7 +122,7 @@ public:
     ConstIterator cend() const;
 
     std::size_t size() const;
-//private:
+private:
     Node* insert(const Key& key, const Value& value, Node *node);
 
     Node* find(const Key& key, Node* node) const;
