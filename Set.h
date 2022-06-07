@@ -1,6 +1,7 @@
 #ifndef BST_SET_H
 #define BST_SET_H
 
+#include "Map.h"
 /*!
     Имплементация множества
     Не допускается дублирование ключей (аналог std::set)
@@ -11,18 +12,12 @@ class Set
     Map<Value, Value> _map;
 
 public:
-    using SetIterator = Map::MapIterator;
-    using ConstSetIterator = Map::ConstMapIterator;
+    using SetIterator = typename Map<Value, Value>::MapIterator;
+    using ConstSetIterator = typename Map<Value, Value>::ConstMapIterator;
 
     Set() = default;
-
-    explicit Set(const Set& other);
-    Set& operator=(const Set& other);
-
-    explicit Set(Set&& other) noexcept;
-    Set& operator=(Set&& other) noexcept;
-
     ~Set() = default;
+
 
     void insert(const Value& value);
 
@@ -33,5 +28,35 @@ public:
 
     bool contains(const Value& value) const;
 };
+
+template<typename Value>
+void Set<Value>::insert(const Value &value)
+{
+    _map.insert(value, value);
+}
+
+template<typename Value>
+void Set<Value>::erase(const Value &value)
+{
+    _map.erase(value);
+}
+
+template<typename Value>
+typename Set<Value>::ConstSetIterator Set<Value>::find(const Value &value) const
+{
+    return _map.find(value);
+}
+
+template<typename Value>
+typename Set<Value>::SetIterator Set<Value>::find(const Value &key)
+{
+    return _map.find(key);
+}
+
+template<typename Value>
+bool Set<Value>::contains(const Value &value) const
+{
+    return find(value) != ConstSetIterator(nullptr);
+}
 
 #endif //BST_SET_H
