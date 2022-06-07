@@ -72,22 +72,7 @@ int main() {
 //    std::cout << std::endl;
 
 
-//    std::cout << std::endl;
-////
-//    auto it = BinarySearchTree<int, char>::Iterator(bst._root);
-//    std::cout << it->first << it->second << " ";
-//    --it;
-//    std::cout << it->first << it->second << " ";
-//    --it;
-//    std::cout << it->first << it->second << " ";
-//    --it;
-//    std::cout << it->first << it->second << " ";
-//    --it;
-//    std::cout << it->first << it->second << " ";
-//    --it;
-//    std::cout << it->first << it->second << " ";
-//    --it;
-//    std::cout << it->first << it->second << " ";
+// 
 
 
 
