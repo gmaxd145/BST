@@ -610,9 +610,9 @@ void BinarySearchTree<Key, Value>::erase(const Key& key, Node* node)
     {
         erase(key, node->right);
     }
-    else if (key == nodeKey)
+    else
     {
-        if (node->left == nullptr && node->right == nullptr)
+        if (!node->left && !node->right)
         {
             if (node->parent->keyValuePair.first > node->keyValuePair.first)
             {
@@ -625,7 +625,7 @@ void BinarySearchTree<Key, Value>::erase(const Key& key, Node* node)
             delete node;
             --_size;
         }
-        else if (node->left && !node->right)
+        else if (!node->right)
         {
             node->parent->left = node->left;
             node->left->parent = node->parent;
@@ -641,11 +641,21 @@ void BinarySearchTree<Key, Value>::erase(const Key& key, Node* node)
         }
         else
         {
-            Node* minNode = min(node->right);
-            node->keyValuePair = std::make_pair(minNode->keyValuePair.first, minNode->keyValuePair.second);
-            node->right = minNode->right;
-            minNode->right->parent = node;
-            delete minNode;
+            Node* maxNode = max(node->left);
+
+            if (maxNode->parent->keyValuePair.first <= maxNode->keyValuePair.first)
+            {
+                maxNode->parent->right = maxNode->left;
+            }
+            else
+            {
+                maxNode->parent->left = maxNode->left;
+            }
+            maxNode->left->parent = maxNode->parent;
+
+            node->keyValuePair = maxNode->keyValuePair;
+
+            delete maxNode;
             --_size;
         }
     }
