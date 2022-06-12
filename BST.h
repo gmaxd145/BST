@@ -135,6 +135,8 @@ private:
     void erase (const Key& key, Node* node);
     void clear(Node* node);
 
+    void toValid(Node* node);
+
     std::size_t _size = 0;
     Node* _root = nullptr; //!< корневой узел дерева
 };
@@ -168,6 +170,18 @@ BinarySearchTree<Key, Value> &BinarySearchTree<Key, Value>::operator=(BinarySear
 {
     std::swap(_root, other._root);
     toValid(other._root);
+}
+
+
+template<typename Key, typename Value>
+void BinarySearchTree<Key, Value>::toValid(BinarySearchTree::Node *node)
+{
+    if (node)
+    {
+        toValid(node->left);
+        toValid(node->right);
+        node->keyValuePair = std::make_pair(Key(), Value());
+    }
 }
 
 template<typename Key, typename Value>
@@ -739,6 +753,7 @@ BinarySearchTree<Key, Value>::max(const Key &key) const
     }
     return maxPairIt;
 }
+
 
 
 #endif //BST_BST_H
