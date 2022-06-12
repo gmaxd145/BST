@@ -135,8 +135,6 @@ private:
     void erase (const Key& key, Node* node);
     void clear(Node* node);
 
-    void toValid(Node* node);
-
     std::size_t _size = 0;
     Node* _root = nullptr; //!< корневой узел дерева
 };
@@ -169,19 +167,7 @@ template<typename Key, typename Value>
 BinarySearchTree<Key, Value> &BinarySearchTree<Key, Value>::operator=(BinarySearchTree &&other) noexcept
 {
     std::swap(_root, other._root);
-    toValid(other._root);
-}
-
-
-template<typename Key, typename Value>
-void BinarySearchTree<Key, Value>::toValid(BinarySearchTree::Node *node)
-{
-    if (node)
-    {
-        toValid(node->left);
-        toValid(node->right);
-        node->keyValuePair = std::make_pair(Key(), Value());
-    }
+    std::swap(_size, other._size);
 }
 
 template<typename Key, typename Value>
