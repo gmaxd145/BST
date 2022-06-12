@@ -168,6 +168,11 @@ BinarySearchTree<Key, Value> &BinarySearchTree<Key, Value>::operator=(BinarySear
 {
     std::swap(_root, other._root);
     std::swap(_size, other._size);
+
+    clear(other._root);
+    other._size = 0;
+
+    return *this;
 }
 
 template<typename Key, typename Value>
@@ -176,6 +181,17 @@ BinarySearchTree<Key, Value>::~BinarySearchTree()
     clear(_root);
     _root = nullptr;
     _size = 0;
+}
+
+template<typename Key, typename Value>
+void BinarySearchTree<Key, Value>::clear(BinarySearchTree::Node *node)
+{
+    if (node)
+    {
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
 }
 
 template<typename Key, typename Value>
@@ -203,18 +219,6 @@ typename BinarySearchTree<Key, Value>::Node *BinarySearchTree<Key, Value>::copy(
         return nNode;
     }
     return nullptr;
-}
-
-
-template<typename Key, typename Value>
-void BinarySearchTree<Key, Value>::clear(BinarySearchTree::Node *node)
-{
-    if (node)
-    {
-        clear(node->left);
-        clear(node->right);
-        delete node;
-    }
 }
 
 /*              Iterator                */
