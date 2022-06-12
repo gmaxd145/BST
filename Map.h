@@ -3,6 +3,7 @@
 
 #include "BST.h"
 #include <iterator>
+#include <stdexcept>
 
 /*!
     Имплементация словаря
@@ -77,10 +78,15 @@ typename Map<Key, Value>::MapIterator Map<Key, Value>::find(const Key &key)
 
 template<typename Key, typename Value>
 const Value &Map<Key, Value>::operator[](const Key &key) const
-        {
+{
+    auto prSize = _tree.size();
     if (find(key) == end())
     {
         insert(key, std::iterator_traits<Value>::value_type);
+    }
+    if (prSize != _tree.size())
+    {
+        throw std::out_of_range("Out of range");
     }
     return _tree.find(key)->second;
 }
