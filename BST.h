@@ -170,6 +170,7 @@ BinarySearchTree<Key, Value> &BinarySearchTree<Key, Value>::operator=(BinarySear
     std::swap(_size, other._size);
 
     clear(other._root);
+    other._root = nullptr;
     other._size = 0;
 
     return *this;
